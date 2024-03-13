@@ -32,7 +32,132 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+.sudoku-board .ant-row {
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+  text-align: center;
+  margin: auto !important;
+  width: 50%;
+}
+
+.sudoku-board .ant-col input {
+  text-align: center;
+  border-radius: 0px !important;
+  height: 75px !important;
+  font-size: 24px;
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -ms-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+
+.sudoku-board {
+  padding-bottom: 50px;
+}
+
+.App {
+  background-color: #b0afaf;
+}
+
+.sudoku-board .ant-col input.readonly {
+  font-weight: 800;
+}
+
+.sudoku-board .ant-col input.square {
+  background-color: blanchedalmond;
+}
+
+.sudoku-board .ant-col input.error {
+  background-color: red;
+  -webkit-transition: all 0.2s ease-in;
+  -moz-transition: all 0.2s ease-in;
+  -ms-transition: all 0.2s ease-in;
+  -o-transition: all 0.2s ease-in;
+  transition: all 0.2s ease-in;
+}
+
+.new-game-button {
+  margin-left: 10px;
+  background-color: blanchedalmond;
+  margin-bottom: 25px;
+  color: black;
+  font-weight: 600;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.new-game-button:hover {
+  background-color: #fff !important;
+  margin-bottom: 25px;
+  color: black !important;
+  font-weight: 600;
+  transform: scale(1.05);
+  -webkit-transition: all 0.3s ease-in;
+  -moz-transition: all 0.3s ease-in;
+  -ms-transition: all 0.3s ease-in;
+  -o-transition: all 0.3s ease-in;
+  transition: all 0.3s ease-in;
+}
+
+.ant-modal-content {
+  background-color: #eedede !important;
+}
+
+.ant-modal-content>div {
+  background-color: #eedede !important;
+}
+
+.ant-modal-content .ant-modal-footer .ant-btn-primary {
+  background-color: black;
+  font-weight: 600 !important;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.ant-modal-content .ant-modal-footer .ant-btn-primary:hover {
+  background-color: forestgreen !important;
+  color: black !important;
+  font-weight: 600 !important;
+  -webkit-transition: all 0.3s ease-in;
+  -moz-transition: all 0.3s ease-in;
+  -ms-transition: all 0.3s ease-in;
+  -o-transition: all 0.3s ease-in;
+  transition: all 0.3s ease-in;
+  transform: scale(1.05);
+}
+
+.ant-modal-content .ant-modal-footer .ant-btn-default {
+  font-weight: 600 !important;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.ant-btn-default:hover {
+  border: rgb(250, 48, 48) solid 1px !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  background-color: rgb(250, 48, 48) !important;
+  -webkit-transition: all 0.3s ease-in;
+  -moz-transition: all 0.3s ease-in;
+  -ms-transition: all 0.3s ease-in;
+  -o-transition: all 0.3s ease-in;
+  transition: all 0.3s ease-in;
+  transform: scale(1.05);
 }
