@@ -265,7 +265,7 @@ span .new-game-button {
 @media screen and (max-width: 576px) {
   /* CSS cho màn hình có độ rộng tối đa là 576px */
   .sudoku-board .ant-col input {
-    height: 50px !important;
+    height: 40px !important;
     font-size: 18px;
   }
 }
@@ -292,7 +292,7 @@ span .new-game-button {
   height: 30px;
 }
 /* Media queries cho thiết bị di động */
-@media only screen and (max-width: 420px) {
+@media only screen and (max-width: 600px) {
   .App{
     width: 100% !important;
     height: 100% !important;
