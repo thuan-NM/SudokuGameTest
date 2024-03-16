@@ -88,4 +88,4 @@ function isValidBox(board, startRow, startCol, num) {
     return true;
 }
 
-export  {solveSudoku};
+export { solveSudoku };

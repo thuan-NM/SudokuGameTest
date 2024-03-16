@@ -1,48 +1,122 @@
-function solveSingleCell(matrix) {
-    const size = 9; // Kích thước của ma trận Sudoku (9x9)
+import { solveSudoku } from "../solveSudoku";
 
-    // Tạo một danh sách chứa các số từ 1 đến 9
-    const numbers = [...Array(9).keys()].map(x => x + 1);
+function suggestHighestCompletion(board) {
+    const n = board.length;
+    const m = board[0].length;
 
-    // Xáo trộn hàng và cột để chọn một ô ngẫu nhiên trong ma trận
-    const shuffledIndexes = shuffleArray([...Array(size).keys()]);
-
-    // Lặp qua từng ô trong ma trận
-    for (const rowIndex of shuffledIndexes) {
-        for (const colIndex of shuffledIndexes) {
-            if (matrix[rowIndex][colIndex] === 0) { // Nếu ô này chưa được điền
-                // Xáo trộn các số để chọn một số ngẫu nhiên từ danh sách
-                const shuffledNumbers = shuffleArray(numbers);
-
-                // Thử từng số một từ danh sách ngẫu nhiên
-                for (const num of shuffledNumbers) {
-                    if (isValidMove(matrix, rowIndex, colIndex, num)) { // Kiểm tra nếu số num có thể điền vào ô này
-                        matrix[rowIndex][colIndex] = num; // Đặt giá trị num vào ô
-                        return matrix; // Trả về ma trận với ô đã được giải
-                    }
+    // Tìm ô trống có tỉ lệ hoàn thành cao nhất
+    let maxCompletionRatio = -Infinity;
+    let maxRow = -1;
+    let maxCol = -1;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
+            if (board[i][j] === 0) {
+                const completionRatio = calculateCompletionRatio(board, i, j);
+                if (completionRatio > maxCompletionRatio) {
+                    maxCompletionRatio = completionRatio;
+                    maxRow = i;
+                    maxCol = j;
                 }
             }
         }
     }
 
-    // Nếu không có ô nào để giải, trả về ma trận không thay đổi
-    return matrix;
+    // Thêm giá trị vào ô có tỉ lệ hoàn thành cao nhất
+    const suggestedBoard = JSON.parse(JSON.stringify(board)); // Tạo bản sao của ma trận để tránh ảnh hưởng đến ma trận gốc
+    if (maxRow !== -1 && maxCol !== -1) {
+        suggestedBoard[maxRow][maxCol] = calculateBestValue(board, maxRow, maxCol);
+    }
+
+    return suggestedBoard;
 }
 
-// Hàm kiểm tra xem một giá trị có hợp lệ để điền vào một ô trong ma trận Sudoku không
-function isValidMove(matrix, row, col, num) {
-    // Kiểm tra hàng và cột
-    for (let i = 0; i < 9; i++) {
-        if (matrix[i][col] === num || matrix[row][i] === num) {
-            return false;
-        }
+// Tính tỉ lệ hoàn thành cho ô cụ thể
+function calculateCompletionRatio(board, row, col) {
+    const n = board.length;
+    const m = board[0].length;
+    let emptyCells = 0;
+    let invalidMoves = 0;
+    let possibleValues = 0; // Số lượng giá trị có thể điền vào ô
+
+    // Đếm số ô trống và số lượt đặt giá trị không hợp lệ
+    for (let i = 0; i < n; i++) {
+        if (board[row][i] === 0) emptyCells++;
+        if (!isValidMove(board, row, col, board[row][i]) && board[row][i] !== 0) invalidMoves++;
+        if (!isValidMove(board, i, col, board[i][col]) && board[i][col] !== 0) invalidMoves++;
     }
-    // Kiểm tra ô 3x3
+
     const startRow = Math.floor(row / 3) * 3;
     const startCol = Math.floor(col / 3) * 3;
     for (let i = startRow; i < startRow + 3; i++) {
         for (let j = startCol; j < startCol + 3; j++) {
-            if (matrix[i][j] === num) {
+            if (board[i][j] === 0) emptyCells++;
+            if (!isValidMove(board, row, col, board[i][j]) && board[i][j] !== 0) invalidMoves++;
+        }
+    }
+
+    // Đếm số lượng giá trị có thể điền vào ô
+    const options = getOptions(board, row, col);
+    possibleValues = options.length;
+
+    // Tính tỉ lệ hoàn thành
+    if (emptyCells === 0) return -1; // Nếu ô đã được điền, tỉ lệ hoàn thành là -1
+    return (emptyCells - invalidMoves) / (emptyCells + possibleValues); // Thêm yếu tố số lượng giá trị có thể điền vào ô
+}
+
+// Tính giá trị tốt nhất cho ô cụ thể
+function calculateBestValue(board, row, col) {
+    const options = getOptions(board, row, col);
+
+    // Lặp qua từng lựa chọn và kiểm tra tính hợp lệ của ma trận sau khi gợi ý giá trị
+    for (let i = 0; i < options.length; i++) {
+        const testValue = options[i];
+        const testBoard = JSON.parse(JSON.stringify(board));
+        testBoard[row][col] = testValue;
+
+        // Kiểm tra tính hợp lệ của ma trận sau khi gợi ý giá trị
+        if (isValidSudoku(testBoard) && solveSudoku(testBoard)) {
+            return testValue; // Trả về giá trị đầu tiên làm cho ma trận có thể giải được
+        }
+    }
+
+    // Nếu không tìm thấy giá trị nào thỏa mãn, trả về 0
+    return 0;
+}
+
+// Kiểm tra tính hợp lệ của một nước đi
+function isValidMove(board, row, col, num) {
+    return (
+        isValidRow(board, row, num) &&
+        isValidColumn(board, col, num) &&
+        isValidBox(board, row - (row % 3), col - (col % 3), num)
+    );
+}
+
+// Kiểm tra tính hợp lệ của một hàng
+function isValidRow(board, row, num) {
+    for (let i = 0; i < 9; i++) {
+        if (board[row][i] === num) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Kiểm tra tính hợp lệ của một cột
+function isValidColumn(board, col, num) {
+    for (let i = 0; i < 9; i++) {
+        if (board[i][col] === num) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Kiểm tra tính hợp lệ của một khối 3x3
+function isValidBox(board, startRow, startCol, num) {
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+            if (board[row + startRow][col + startCol] === num) {
                 return false;
             }
         }
@@ -50,13 +124,63 @@ function isValidMove(matrix, row, col, num) {
     return true;
 }
 
-// Hàm xáo trộn một mảng ngẫu nhiên
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+// Lấy danh sách các lựa chọn hợp lệ cho ô trong ma trận Sudoku
+function getOptions(matrix, row, col) {
+    const options = [];
+    for (let num = 1; num <= 9; num++) {
+        if (isValidMove(matrix, row, col, num)) {
+            options.push(num);
+        }
     }
-    return array;
+    return options;
 }
 
-export default solveSingleCell;
+function isValidSudoku(board) {
+    const n = board.length;
+    const m = board[0].length;
+
+    // Kiểm tra tính hợp lệ của từng hàng
+    for (let i = 0; i < n; i++) {
+        const rowSet = new Set();
+        for (let j = 0; j < m; j++) {
+            const cellValue = board[i][j];
+            if (cellValue !== 0 && rowSet.has(cellValue)) {
+                return false; // Nếu đã xuất hiện giá trị này trước đó trong hàng, bảng không hợp lệ
+            }
+            rowSet.add(cellValue);
+        }
+    }
+
+    // Kiểm tra tính hợp lệ của từng cột
+    for (let j = 0; j < m; j++) {
+        const colSet = new Set();
+        for (let i = 0; i < n; i++) {
+            const cellValue = board[i][j];
+            if (cellValue !== 0 && colSet.has(cellValue)) {
+                return false; // Nếu đã xuất hiện giá trị này trước đó trong cột, bảng không hợp lệ
+            }
+            colSet.add(cellValue);
+        }
+    }
+
+    // Kiểm tra tính hợp lệ của từng khối 3x3
+    for (let blockRow = 0; blockRow < n; blockRow += 3) {
+        for (let blockCol = 0; blockCol < m; blockCol += 3) {
+            const blockSet = new Set();
+            for (let i = blockRow; i < blockRow + 3; i++) {
+                for (let j = blockCol; j < blockCol + 3; j++) {
+                    const cellValue = board[i][j];
+                    if (cellValue !== 0 && blockSet.has(cellValue)) {
+                        return false; // Nếu đã xuất hiện giá trị này trước đó trong khối, bảng không hợp lệ
+                    }
+                    blockSet.add(cellValue);
+                }
+            }
+        }
+    }
+
+    // Nếu không có vấn đề gì, bảng là hợp lệ
+    return true;
+}
+
+export default suggestHighestCompletion ;
