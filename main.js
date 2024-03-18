@@ -1,17 +1,16 @@
 const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 19200,
-    height: 1080,
+    width: 800,
+    height: 600,
     webPreferences: {
-      nodeIntegration: true,
-    },
+      nodeIntegration: true
+    }
   });
 
-  win.loadURL('http://localhost:3000'); // Load ứng dụng React từ máy chủ phát triển
-
-  // Mở DevTools (xóa dòng này trong sản phẩm cuối cùng)
+  win.loadFile('public/index.html')
 }
 
 app.whenReady().then(createWindow);
